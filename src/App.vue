@@ -17,7 +17,7 @@
     data() {
       return {
         priceData: priceData["Time Series (Daily)"],
-        month: "09",
+        month: "11",
         stock: "MSFT"
       }
     },
@@ -76,8 +76,4 @@
     width: 860px;
     margin: auto;
   }
-
-  .chart-wrapper {
-    background-color: lightsteelblue;
-  }  
 </style>
