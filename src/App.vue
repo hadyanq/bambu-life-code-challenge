@@ -26,6 +26,8 @@
     computed: {
       filteredByMonth() {
         let filtered = {}
+        const ordered = {}
+
         for (let d in this.priceData) {
           const removeDays = d.substring(0, 7)
           if (removeDays === `2018-${this.month}`) {
@@ -40,7 +42,8 @@
           filtered[d]["4. close"] = Math.round(filtered[d]["4. close"])
         }
 
-        return filtered
+        Object.keys(filtered).sort().forEach((key) => ordered[key] = filtered[key])        
+        return ordered
       },
       highestPrice() {
         const days = Object.keys(this.filteredByMonth)

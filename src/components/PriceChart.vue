@@ -14,7 +14,7 @@
 
       <text 
         :key="i.day + '-label'" 
-        :x="(gridSpacing * i.multiplier) - 25" 
+        :x="(gridSpacing * i.multiplier) - 9" 
         :y="height - 10"
         v-html="shortenDate(i.day)"
       />
@@ -163,7 +163,7 @@
         const d = longDate.substring(8, 10)
         const m = longDate.substring(5, 7)
 
-        return `${d}/${m}`
+        return `${d}`
       },
       priceToYAxis(price) {
         const min = this.floor[Object.keys(this.floor)[0]]["3. low"]
