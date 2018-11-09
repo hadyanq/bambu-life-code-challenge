@@ -1,6 +1,8 @@
 <template>
   <div class="main-wrapper">
     <price-chart 
+      :width="1060"
+      :height="620"
       :ceiling="highestPrice"
       :floor="lowestPrice"
       :interval="filteredByMonth"
@@ -17,7 +19,7 @@
     data() {
       return {
         priceData: priceData["Time Series (Daily)"],
-        month: "11",
+        month: "10",
         stock: "MSFT"
       }
     },
@@ -29,6 +31,13 @@
           if (removeDays === `2018-${this.month}`) {
             filtered[d] = this.priceData[d]
           }
+        }
+
+        for (let d in filtered) {
+          filtered[d]["1. open"] = Math.round(filtered[d]["1. open"]) 
+          filtered[d]["2. high"] = Math.round(filtered[d]["2. high"])
+          filtered[d]["3. low"] = Math.round(filtered[d]["3. low"])
+          filtered[d]["4. close"] = Math.round(filtered[d]["4. close"])
         }
 
         return filtered
@@ -73,7 +82,7 @@
 
 <style>
   .main-wrapper {
-    width: 860px;
+    width: 1060px;
     margin: auto;
   }
 </style>

@@ -58,7 +58,7 @@
     <!-- left vertical price points -->
     <template v-for="i in pricePoints">
       <line 
-        :key="i.price" 
+        :key="i.multiplier + '-price'" 
         x1="0" 
         x2="4"
         :y1="priceSpacing * i.multiplier" 
@@ -68,7 +68,7 @@
       />
 
       <text 
-        :key="i.price + '-label'" 
+        :key="i.multiplier + '-label'" 
         x="6" 
         :y="(priceSpacing * i.multiplier) + 6"
         v-html="i.price"
@@ -80,6 +80,14 @@
 <script>
   export default {
     props: {
+      width: {
+        type: Number,
+        default: 1060
+      }, 
+      height: {
+        type: Number,
+        default: 620
+      }, 
       ceiling: {
         type: Object,
         default: () => {}
@@ -91,12 +99,6 @@
       interval: {
         type: Object,
         default: () => {}
-      }
-    },
-    data() {
-      return {
-        width: 800,
-        height: 400
       }
     },
     computed: {
@@ -113,7 +115,7 @@
         
         while (topPrice - subtractor > floor) {
           multiplier++
-          pricePoints.push({ price: topPrice - subtractor, multiplier })
+          pricePoints.push({ price: Math.round(topPrice - subtractor), multiplier })
           topPrice -= subtractor
         }
         
