@@ -7,7 +7,8 @@
     <div class="sidebar">
       <ul>
         <template v-for="i in symbols">
-          <li :key="i" @click="symbol = i">{{ i }}</li>
+          <li v-if="!loading" :key="i" @click="symbol = i">{{ i }}</li>
+          <li v-else :key="i" class="disabled">{{ i }}</li>
         </template>
       </ul>
     </div>
@@ -24,7 +25,12 @@
       />
       <div class="placeholder" v-else>
         <spinner v-if="loading" :width="100"/>
-        <h3 v-else>Please select a symbol</h3>
+        <template v-else>
+          <h3>
+            <template v-if="err">{{ err }}</template>
+            <template v-else>Please select a symbol</template>
+          </h3>      
+        </template>
       </div>
     </div>
   </div>
@@ -51,7 +57,8 @@
           "ORCL", "CMCSA", "GOOG", "LUV",
           "HOG", "GOOGL", "AMZN"
         ],
-        loading: false
+        loading: false,
+        err: null
       }
     },
     watch: {
@@ -62,8 +69,9 @@
 
         try {
           const endpoint = `${apiUrl}/query?function=TIME_SERIES_DAILY&symbol=${this.symbol}&apikey=${apiKey}`
-          const resp = await axios.get(endpoint).then(resp => resp.data)
+          const resp = await axios.get(endpoint).then(resp => resp.data)                    
           this.priceData = resp["Time Series (Daily)"]
+          this.err = resp["Note"]
         } catch (e) {
           console.log(e)
         } finally {
@@ -170,5 +178,10 @@
   .sidebar li:hover {
     cursor: pointer;
     background-color: lightsteelblue;
+  }
+
+  .sidebar .disabled {
+    opacity: 0.5;
+    background-color: grey;
   }
 </style>
