@@ -2,6 +2,12 @@
   <div>
     <header>
       <h2>{{ title }}</h2>
+      <interval-control 
+        :interval="interval" 
+        :price-data="priceData"
+        :selected-month="month"
+        @setMonth="month = $event"
+      />
     </header>
 
     <div class="sidebar">
@@ -42,14 +48,16 @@
 
   import axios from "axios"
   import Spinner from "./components/Spinner.vue"
+  import IntervalControl from "./components/IntervalControl.vue"
   import PriceChart from "./components/PriceChart.vue"
 
   export default {
-    components: { Spinner,  PriceChart },
+    components: { Spinner, IntervalControl, PriceChart },
     data() {
       return {
         title: "Bambu.Life Code Challenge",
         priceData: null,
+        interval: "daily",
         month: "11",
         symbol: "",
         symbols: [
@@ -140,9 +148,9 @@
   }
 
   header h2 {
+    display: inline-block;
     margin-left: 20px;
     font-size: 14px;
-    color: white;
   }
 
   .placeholder {
@@ -154,7 +162,6 @@
   .placeholder h3 {
     padding-top: 102px;    
     font-weight: bold;
-    color: white;
   }
 
   .sidebar {
@@ -169,7 +176,6 @@
   .sidebar li {
     background-color: darkcyan;
     padding: 12px;
-    color: white;
     font-weight: bold;
     text-align: center;
     margin-bottom: 2px;
