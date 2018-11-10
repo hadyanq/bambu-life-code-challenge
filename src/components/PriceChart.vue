@@ -1,5 +1,5 @@
 <template>
-  <svg class="chart-wrapper" :width="width" :height="height">  
+  <svg class="chart-wrapper" :viewBox="viewBox" :width="width" :height="height">  
     <!-- background grids and bottom date lines -->
     <template v-for="i in grids">
       <line 
@@ -59,8 +59,8 @@
     <template v-for="i in pricePoints">
       <line 
         :key="i.multiplier + '-price'" 
-        x1="0" 
-        x2="4"
+        x1="-18" 
+        x2="-12"
         :y1="priceSpacing * i.multiplier" 
         :y2="priceSpacing * i.multiplier"
         stroke="grey" 
@@ -69,9 +69,9 @@
 
       <text 
         :key="i.multiplier + '-label'" 
-        x="6" 
+        x="-6" 
         :y="(priceSpacing * i.multiplier) + 6"
-        v-html="i.price"
+        v-html="`$` + Math.round(i.price)"
       />
     </template>
   </svg>
@@ -80,6 +80,10 @@
 <script>
   export default {
     props: {
+      viewBox: {
+        type: String,
+        default: ""
+      },
       width: {
         type: Number,
         default: 1060
@@ -115,7 +119,7 @@
         
         while (topPrice - subtractor > floor) {
           multiplier++
-          pricePoints.push({ price: Math.round(topPrice - subtractor), multiplier })
+          pricePoints.push({ price: topPrice - subtractor, multiplier })
           topPrice -= subtractor
         }
         

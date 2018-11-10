@@ -1,26 +1,74 @@
 <template>
-  <div class="main-wrapper">
-    <price-chart 
-      :width="1060"
-      :height="620"
-      :ceiling="highestPrice"
-      :floor="lowestPrice"
-      :interval="filteredByMonth"
-    />
+  <div>
+    <header>
+      <h2>{{ title }}</h2>
+    </header>
+
+    <div class="sidebar">
+      <ul>
+        <template v-for="i in symbols">
+          <li :key="i" @click="symbol = i">{{ i }}</li>
+        </template>
+      </ul>
+    </div>
+
+    <div class="chart">
+      <price-chart 
+        v-if="priceData"
+        viewBox="-20 0 1080 540"
+        :width="1060"
+        :height="540"
+        :ceiling="highestPrice"
+        :floor="lowestPrice"
+        :interval="filteredByMonth"
+      />
+      <div class="placeholder" v-else>
+        <spinner v-if="loading" :width="100"/>
+        <h3 v-else>Please select a symbol</h3>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-  import priceData from "./priceData.json"
+  const apiKey = "79IE7TI76DT1E968"
+  const apiUrl = "https://www.alphavantage.co"
+
+  import axios from "axios"
+  import Spinner from "./components/Spinner.vue"
   import PriceChart from "./components/PriceChart.vue"
 
   export default {
-    components: { PriceChart },
+    components: { Spinner,  PriceChart },
     data() {
       return {
-        priceData: priceData["Time Series (Daily)"],
-        month: "10",
-        stock: "MSFT"
+        title: "Bambu.Life Code Challenge",
+        priceData: null,
+        month: "11",
+        symbol: "",
+        symbols: [
+          "MSFT", "AAPL", "INTC", "NFLX",
+          "ORCL", "CMCSA", "GOOG", "LUV",
+          "HOG", "GOOGL", "AMZN"
+        ],
+        loading: false
+      }
+    },
+    watch: {
+      async symbol() {
+        this.title = this.symbol
+        this.loading = true
+        this.priceData = null
+
+        try {
+          const endpoint = `${apiUrl}/query?function=TIME_SERIES_DAILY&symbol=${this.symbol}&apikey=${apiKey}`
+          const resp = await axios.get(endpoint).then(resp => resp.data)
+          this.priceData = resp["Time Series (Daily)"]
+        } catch (e) {
+          console.log(e)
+        } finally {
+          this.loading = false
+        }
       }
     },
     computed: {
@@ -33,13 +81,6 @@
           if (removeDays === `2018-${this.month}`) {
             filtered[d] = this.priceData[d]
           }
-        }
-
-        for (let d in filtered) {
-          filtered[d]["1. open"] = Math.round(filtered[d]["1. open"]) 
-          filtered[d]["2. high"] = Math.round(filtered[d]["2. high"])
-          filtered[d]["3. low"] = Math.round(filtered[d]["3. low"])
-          filtered[d]["4. close"] = Math.round(filtered[d]["4. close"])
         }
 
         Object.keys(filtered).sort().forEach((key) => ordered[key] = filtered[key])        
@@ -83,9 +124,51 @@
   }
 </script>
 
-<style>
-  .main-wrapper {
+<style scoped>
+  header {
+    background-color: darkred;
+    padding: 2px;
+    margin-bottom: 20px;
+  }
+
+  header h2 {
+    margin-left: 20px;
+    font-size: 14px;
+    color: white;
+  }
+
+  .placeholder {
     width: 1060px;
-    margin: auto;
+    height: 540px;
+    text-align: center;
+  }
+
+  .placeholder h3 {
+    padding-top: 102px;    
+    font-weight: bold;
+    color: white;
+  }
+
+  .sidebar {
+    float: right;
+    width: 290px;
+  }
+
+  .sidebar ul {    
+    list-style: none;
+  }
+
+  .sidebar li {
+    background-color: darkcyan;
+    padding: 12px;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 2px;
+  }
+
+  .sidebar li:hover {
+    cursor: pointer;
+    background-color: lightsteelblue;
   }
 </style>
