@@ -16,7 +16,7 @@
         :key="i.day + '-label'" 
         :x="(gridSpacing * i.multiplier) - 9" 
         :y="height - 10"
-        v-html="shortenDate(i.day)"
+        v-html="formatDate(i.day)"
       />
     </template>
 
@@ -78,6 +78,8 @@
 </template>
 
 <script>
+  import moment from "moment-mini"
+
   export default {
     props: {
       viewBox: {
@@ -103,6 +105,10 @@
       interval: {
         type: Object,
         default: () => {}
+      },
+      dateFormat: {
+        type: String,
+        default: "DD"
       }
     },
     computed: {
@@ -163,11 +169,9 @@
       }
     },
     methods: {
-      shortenDate(longDate) {        
-        const d = longDate.substring(8, 10)
-        const m = longDate.substring(5, 7)
-
-        return `${d}`
+      formatDate(longDate) {        
+        const formatted = moment(longDate, "YYYY-MM-DD").format(this.dateFormat)
+        return formatted
       },
       priceToYAxis(price) {
         const min = this.floor[Object.keys(this.floor)[0]]["3. low"]

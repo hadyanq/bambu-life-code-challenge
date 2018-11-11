@@ -3,10 +3,13 @@
     <header>
       <h2>{{ title }}</h2>
       <interval-control 
-        :interval="interval" 
         :price-data="priceData"
+        :selected-interval="interval" 
         :selected-month="month"
+        :selected-year="year"
+        @setInterval="interval = $event"
         @setMonth="month = $event"
+        @setYear="year = $event"
       />
     </header>
 
@@ -27,7 +30,8 @@
         :height="540"
         :ceiling="highestPrice"
         :floor="lowestPrice"
-        :interval="filteredByMonth"
+        :interval="filtered"
+        :date-format="dateFormat"
       />
       <div class="placeholder" v-else>
         <spinner v-if="loading" :width="100"/>
@@ -57,8 +61,9 @@
       return {
         title: "Bambu.Life Code Challenge",
         priceData: null,
-        interval: "daily",
+        interval: "monthly",
         month: "11",
+        year: "2018",
         symbol: "",
         symbols: [
           "MSFT", "AAPL", "INTC", "NFLX",
@@ -70,71 +75,106 @@
       }
     },
     watch: {
-      async symbol() {
-        this.title = this.symbol
-        this.loading = true
-        this.priceData = null
-
-        try {
-          const endpoint = `${apiUrl}/query?function=TIME_SERIES_DAILY&symbol=${this.symbol}&apikey=${apiKey}`
-          const resp = await axios.get(endpoint).then(resp => resp.data)                    
-          this.priceData = resp["Time Series (Daily)"]
-          this.err = resp["Note"]
-        } catch (e) {
-          console.log(e)
-        } finally {
-          this.loading = false
-        }
+      symbol() { 
+        this.fetchData(this.interval, this.symbol) 
+      },
+      interval() { 
+        this.fetchData(this.interval, this.symbol) 
       }
     },
     computed: {
-      filteredByMonth() {
+      filtered() {
         let filtered = {}
-        const ordered = {}
+        let ordered = {}
 
         for (let d in this.priceData) {
-          const removeDays = d.substring(0, 7)
-          if (removeDays === `2018-${this.month}`) {
-            filtered[d] = this.priceData[d]
-          }
+          switch (this.interval) {
+            case "daily":
+              const removeDays = d.substring(0, 7)
+              if (removeDays === `2018-${this.month}`) {
+                filtered[d] = this.priceData[d]
+              }
+              break
+            case "monthly":            
+              const getYear = d.substring(0, 4)
+              if (getYear === this.year) {
+                filtered[d] = this.priceData[d]
+              }
+            }
         }
-
+        
         Object.keys(filtered).sort().forEach((key) => ordered[key] = filtered[key])        
         return ordered
-      },
+      }, 
       highestPrice() {
-        const days = Object.keys(this.filteredByMonth)
+        const days = Object.keys(this.filtered)
         let currentD  = days[0]
-        let ceiling = { [currentD]: this.filteredByMonth[currentD] }
+        let ceiling = { [currentD]: this.filtered[currentD] }
 
-        for (let d in this.filteredByMonth) {
+        for (let d in this.filtered) {
           if (
-            Number(this.filteredByMonth[d]["2. high"]) > 
+            Number(this.filtered[d]["2. high"]) > 
             Number(ceiling[currentD]["2. high"])
           ) {
             currentD = d
-            ceiling = { [currentD]: this.filteredByMonth[currentD] }
+            ceiling = { [currentD]: this.filtered[currentD] }
           }
         }
 
         return ceiling
       },
       lowestPrice() {        
-        const days = Object.keys(this.filteredByMonth)
+        const days = Object.keys(this.filtered)
         let currentD  = days[0]
-        let floor = { [currentD]: this.filteredByMonth[currentD] }
+        let floor = { [currentD]: this.filtered[currentD] }
 
-        for (let d in this.filteredByMonth) {
+        for (let d in this.filtered) {
           if (
-            Number(this.filteredByMonth[d]["3. low"]) < 
+            Number(this.filtered[d]["3. low"]) < 
             Number(floor[currentD]["3. low"])
           ) {
             currentD = d
-            floor = { [currentD]: this.filteredByMonth[currentD] }
+            floor = { [currentD]: this.filtered[currentD] }
           }
         }
 
         return floor
+      },
+      dateFormat() {
+        switch (this.interval) {
+          case "daily": return "DD"
+          case "monthly": return "MMM"
+        }
+      }
+    },
+    methods: {
+      async fetchData(interval, symbol) {
+        let apiFunction, dataKey
+        this.title = symbol
+        this.loading = true
+        this.priceData = null
+
+        switch (interval) {
+          case "daily":
+            apiFunction = "TIME_SERIES_DAILY"
+            dataKey = "Time Series (Daily)"
+            break
+          case "monthly":
+            apiFunction = "TIME_SERIES_MONTHLY"
+            dataKey = "Monthly Time Series"
+            break
+        }
+
+        try {
+          const endpoint = `${apiUrl}/query?function=${apiFunction}&symbol=${this.symbol}`
+          const resp = await axios.get(`${endpoint}&apikey=${apiKey}`).then(resp => resp.data)                    
+          this.priceData = resp[dataKey]
+          this.err = resp["Note"]
+        } catch (e) {
+          console.log(e)
+        } finally {
+          this.loading = false
+        }
       }
     }
   }
