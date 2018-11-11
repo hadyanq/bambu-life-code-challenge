@@ -61,7 +61,7 @@
       return {
         title: "Bambu.Life Code Challenge",
         priceData: null,
-        interval: "monthly",
+        interval: "",
         month: "11",
         year: "2018",
         symbol: "",
@@ -147,13 +147,18 @@
         }
       }
     },
+    mounted() {
+      if (localStorage.symbol) this.symbol = localStorage.symbol
+      if (localStorage.interval) this.interval = localStorage.interval
+    },
     methods: {
       async fetchData(interval, symbol) {
+        if (!interval || !symbol) return
         let apiFunction, dataKey
         this.title = symbol
         this.loading = true
         this.priceData = null
-
+        
         switch (interval) {
           case "daily":
             apiFunction = "TIME_SERIES_DAILY"
@@ -173,6 +178,8 @@
         } catch (e) {
           console.log(e)
         } finally {
+          localStorage.symbol = symbol
+          localStorage.interval = interval
           this.loading = false
         }
       }

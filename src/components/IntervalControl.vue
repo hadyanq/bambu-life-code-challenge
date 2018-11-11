@@ -84,9 +84,9 @@
       }      
     },
     mounted() {
-      if (this.selectedInterval) this.interval = this.selectedInterval
-      if (this.selectedMonth) this.month = this.selectedMonth
-      if (this.selectedYear) this.year = this.selectedYear
+      this.interval = this.selectedInterval
+      this.month = this.selectedMonth
+      this.year = this.selectedYear
     },
     methods: {
       displayMonth(m) {
