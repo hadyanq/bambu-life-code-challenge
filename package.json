@@ -4,17 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack-dev-server --config build/webpack.config.dev.js",
-    "build": "webpack --config build/webpack.config.dev.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "webpack-dev-server --config build/webpack.config.dev.js"
   },
-  "author": "",
+  "author": "Hadyan Qashidi",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.18.0",
     "moment-mini": "^2.22.1",
-    "vue": "^2.5.17",
-    "vue-router": "^3.0.1"
+    "vue": "^2.5.17"
   },
   "devDependencies": {
     "css-loader": "^1.0.1",
